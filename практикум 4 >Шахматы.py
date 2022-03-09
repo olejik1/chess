@@ -1,4 +1,5 @@
 from copy import deepcopy
+from math import floor
 
 def tfm(pos):
     """Transforms pos=('letter',number) into board indices (y,x)"""
@@ -386,6 +387,8 @@ def play_game(board=None,file=None):
     if file is not None:
         MOVES = file
         for line in MOVES:
+            if len(line.split()[1:]) == 1:
+                break
             white, black = line.split()[1:]
             frm, to = white.split('--')
             frm, to = form(inp=frm), form(inp=to)
@@ -428,6 +431,12 @@ def play_game(board=None,file=None):
                 move = form()
                 
             bd.set_board(pc.make_move(bd,move))
+            with open('/home/alik/chess/game_2','a') as fl:
+                if bd.get_moves()/2 % 1 == 0:
+                    fl.write(f'{frm[0]+str(frm[1])}--{move[0]+str(move[1])}\n')
+                else:
+                    fl.write(f'{bd.get_moves()//2+1}. {frm[0]+str(frm[1])}--{move[0]+str(move[1])} ')
+                
         print(f'Поздравляем, {winner(bd)} победили')
         return bd
         
@@ -439,20 +448,24 @@ def watch_game(fl):
     bod.display_board()
     f = ''
     while f != 'стоп':
-        f = input()
-        if f == 'вперед':
-            k += 1
-            bod = bd.back(n-k)
-            bod.display_board()
-        if f == 'назад':
-            k -= 1
-            bod = bd.back(n-k)
-            bod.display_board()
-        if f == 'старт':
-            bd = bd.back(n-k)
-            play_game(board=bd)
+        try:
+            f = input()
+            if f == 'вперед':
+                k += 1
+                bod = bd.back(n-k)
+                bod.display_board()
+            if f == 'назад':
+                k -= 1
+                bod = bd.back(n-k)
+                bod.display_board()
+            if f == 'старт':
+                bd = bd.back(n-k)
+                play_game(board=bd)
+        except KeyError:
+            print('Игра закончилась')
+            print('Чтобы остановить просмотр, напишите стоп')
 
 if __name__ == '__main__':
-    with open('/home/alik/chess/game_1','r') as fl:
+    with open('/home/alik/chess/game_2','r') as fl:
        watch_game(fl)
     #play_game()
